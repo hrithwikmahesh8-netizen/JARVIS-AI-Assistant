@@ -1,17 +1,31 @@
-import requests
 import json
+import requests
 
-from app.memory.database import remember, recall, add_chat
+from app.memory.database import (
+    add_chat,
+    remember,
+    recall
+)
+
+from app.memory.memory_manager import process_memory
+
 from app.services.system_control import system_command
+
 
 
 def load_profile():
 
     try:
-        with open("app/memory/user_profile.json", "r") as file:
+
+        with open(
+            "app/memory/user_profile.json",
+            "r"
+        ) as file:
+
             return json.load(file)
 
     except:
+
         return {}
 
 
@@ -19,136 +33,198 @@ def load_profile():
 def ask_ai(prompt):
 
     original_prompt = prompt.strip()
-    command = prompt.lower().strip()
 
-    profile = load_profile()
+    command = original_prompt.lower()
 
 
-    # --------------------------------
-    # PC CONTROL COMMANDS
-    # --------------------------------
 
-    system_response = system_command(command)
+    # =========================
+    # SYSTEM COMMANDS
+    # =========================
+
+    system_response = system_command(
+        original_prompt
+    )
+
 
     if system_response:
-        add_chat(original_prompt, system_response)
+
+        add_chat(
+            original_prompt,
+            system_response
+        )
+
         return system_response
 
 
 
-    # --------------------------------
-    # MEMORY RECALL
-    # --------------------------------
+    # =========================
+    # MEMORY SYSTEM
+    # =========================
+
+    memory_response = process_memory(
+        original_prompt
+    )
+
+
+    if memory_response:
+
+        add_chat(
+            original_prompt,
+            memory_response
+        )
+
+        return memory_response
+
+
+
+    # =========================
+    # REMEMBER NAME
+    # =========================
+
+    if "remember my name is" in command:
+
+
+        name = (
+            original_prompt
+            .replace(
+                "remember my name is",
+                ""
+            )
+            .strip()
+        )
+
+
+        remember(
+            "name",
+            name
+        )
+
+
+        answer = (
+            f"I will remember your name is {name}."
+        )
+
+
+        add_chat(
+            original_prompt,
+            answer
+        )
+
+
+        return answer
+
+
+
+    # =========================
+    # ASK NAME
+    # =========================
 
     if "what is my name" in command:
 
-        name = recall("name")
+
+        name = recall(
+            "name"
+        )
+
 
         if name:
-            return f"Your name is {name}."
 
-        return "I don't know your name yet."
+            answer = (
+                f"Your name is {name}, Hrithwik."
+            )
 
+        else:
 
-
-    if "do i like" in command:
-
-        item = command.replace("do i like", "").strip()
-
-        if recall("like " + item):
-
-            return f"Yes, you like {item}."
-
-        if recall("dislike " + item):
-
-            return f"No, you don't like {item}."
-
-        return f"I don't know if you like {item} yet."
+            answer = (
+                "I don't know your name yet."
+            )
 
 
+        add_chat(
+            original_prompt,
+            answer
+        )
 
-    # --------------------------------
-    # AUTOMATIC LEARNING
-    # --------------------------------
 
-
-    # Learn name
-
-    if "my name is" in command:
-
-        name = command.replace("my name is", "").strip()
-
-        remember("name", name)
-
-        return f"Nice to meet you {name}. I will remember your name."
+        return answer
 
 
 
-    # Learn likes
+    # =========================
+    # OLLAMA AI
+    # =========================
 
-    if "i like" in command:
-
-        item = command.replace("i like", "").strip()
-
-        remember("like " + item, True)
-
-        return f"I will remember that you like {item}."
+    profile = load_profile()
 
 
 
-    # Learn dislikes
+    try:
 
-    if "i don't like" in command or "i dislike" in command:
+        response = requests.post(
 
-        item = command.replace("i don't like", "")
-        item = item.replace("i dislike", "").strip()
+            "http://localhost:11434/api/generate",
 
-        remember("dislike " + item, True)
+            json={
 
-        return f"I will remember that you don't like {item}."
+                "model": "llama3.2",
 
+                "prompt": f"""
 
-
-    # --------------------------------
-    # LOCAL AI RESPONSE
-    # --------------------------------
-
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "llama3.2",
-
-            "prompt": f"""
 You are JARVIS, Hrithwik's personal AI assistant.
 
-User profile:
+Personality:
+- Intelligent
+- Polite
+- Helpful
+- Futuristic
+- Professional
+
+
+User information:
+
 {profile}
 
-Rules:
-- You are NOT Tony Stark's JARVIS.
-- Do not mention Marvel or Tony Stark.
-- Never invent information about Hrithwik.
-- Only use information provided by Hrithwik.
-- If you don't know something, say you don't know.
-- Be helpful and concise.
+
+Answer naturally and briefly.
+
 
 User:
 {original_prompt}
 
+
 JARVIS:
+
 """,
 
-            "stream": False
-        }
+                "stream": False
+
+            }
+
+        )
+
+
+        answer = (
+            response
+            .json()
+            ["response"]
+            .strip()
+        )
+
+
+    except Exception:
+
+
+        answer = (
+            "I am unable to connect to my AI system right now."
+        )
+
+
+
+    add_chat(
+        original_prompt,
+        answer
     )
-
-
-    answer = response.json()["response"]
-
-
-    # Save conversation
-
-    add_chat(original_prompt, answer)
 
 
     return answer

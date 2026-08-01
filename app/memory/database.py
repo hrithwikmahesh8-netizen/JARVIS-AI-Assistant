@@ -2,68 +2,136 @@ import json
 import os
 
 
-# User facts memory
-MEMORY_FILE = "memory.json"
+MEMORY_FILE = "app/memory/memories.json"
+
+CHAT_FILE = "app/memory/chat_history.json"
+
 
 
 def load_memory():
 
     if not os.path.exists(MEMORY_FILE):
+
         return {}
 
-    with open(MEMORY_FILE, "r") as file:
-        return json.load(file)
+
+    try:
+
+        with open(
+            MEMORY_FILE,
+            "r"
+        ) as file:
+
+            return json.load(file)
 
 
-def save_memory(data):
+    except:
 
-    with open(MEMORY_FILE, "w") as file:
-        json.dump(data, file, indent=4)
+        return {}
+
+
+
+def save_memory(memory):
+
+    os.makedirs(
+        "app/memory",
+        exist_ok=True
+    )
+
+
+    with open(
+        MEMORY_FILE,
+        "w"
+    ) as file:
+
+
+        json.dump(
+            memory,
+            file,
+            indent=4
+        )
+
 
 
 def remember(key, value):
 
     memory = load_memory()
 
+
     memory[key] = value
 
-    save_memory(memory)
+
+    save_memory(
+        memory
+    )
+
 
 
 def recall(key):
 
     memory = load_memory()
 
-    return memory.get(key, None)
+
+    return memory.get(
+        key
+    )
 
 
 
-# Conversation memory
-CHAT_FILE = "app/memory/conversations.json"
+def all_memories():
+
+    return load_memory()
 
 
-def load_chat():
 
-    if not os.path.exists(CHAT_FILE):
-        return []
+def add_chat(user, assistant):
 
-    with open(CHAT_FILE, "r") as file:
-        return json.load(file)
-
-
-def save_chat(history):
-
-    with open(CHAT_FILE, "w") as file:
-        json.dump(history, file, indent=4)
+    os.makedirs(
+        "app/memory",
+        exist_ok=True
+    )
 
 
-def add_chat(user, jarvis):
+    history = []
 
-    history = load_chat()
 
-    history.append({
-        "user": user,
-        "jarvis": jarvis
-    })
+    if os.path.exists(CHAT_FILE):
 
-    save_chat(history)
+        try:
+
+            with open(
+                CHAT_FILE,
+                "r"
+            ) as file:
+
+                history = json.load(file)
+
+
+        except:
+
+            history = []
+
+
+
+    history.append(
+
+        {
+            "user": user,
+            "assistant": assistant
+        }
+
+    )
+
+
+
+    with open(
+        CHAT_FILE,
+        "w"
+    ) as file:
+
+
+        json.dump(
+            history,
+            file,
+            indent=4
+        )

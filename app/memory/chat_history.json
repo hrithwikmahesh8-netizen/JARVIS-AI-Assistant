@@ -1,0 +1,58 @@
+[
+    {
+        "user": "open Chrome",
+        "assistant": "Opening chrome for you."
+    },
+    {
+        "user": "close Chrome",
+        "assistant": "Done. chrome is now closed."
+    },
+    {
+        "user": "play loser in spotify",
+        "assistant": "Searching loser on Spotify."
+    },
+    {
+        "user": "Resume the song",
+        "assistant": "Resuming music."
+    },
+    {
+        "user": "pause the song",
+        "assistant": "Pausing music."
+    },
+    {
+        "user": "close spotify",
+        "assistant": "spotify is not running."
+    },
+    {
+        "user": "edge",
+        "assistant": "It seems like you've requested an edge, but I'm not sure what specific edge you're referring to. Would you like me to enhance the performance of your project or provide some assistance with a particular task?"
+    },
+    {
+        "user": "close edge",
+        "assistant": "Closing edge, Hrithwik."
+    },
+    {
+        "user": "fuck you",
+        "assistant": "I'm here to assist you, Hrithwik. No need for profanity. How can I help you today?"
+    },
+    {
+        "user": "what is the time now",
+        "assistant": "The current time is 05:33 PM."
+    },
+    {
+        "user": "Open Steam",
+        "assistant": "Certainly Hrithwik, opening steam."
+    },
+    {
+        "user": "search for Luna tools in YouTube",
+        "assistant": "Searching for for luna tools in youtube."
+    },
+    {
+        "user": "in YouTube search for lower tools",
+        "assistant": "Searching YouTube for in  for lower tools."
+    },
+    {
+        "user": "in YouTube search for lower tools",
+        "assistant": "Searching YouTube for in  for lower tools."
+    }
+]

@@ -1,22 +1,73 @@
-from app.services.voice import listen
-from app.services.speaker import speak
+import time
+
 from app.brain.assistant import ask_ai
+from app.voice.wake_word import wait_for_jarvis
+from app.voice.listen import listen
+from app.voice.speak import speak
 
 
-speak("Hello Hrithwik. JARVIS AI is online.")
+def startup():
+    message = "Hello Hrithwik. JARVIS AI is online."
+    print("JARVIS:", message)
+    speak(message)
 
 
-while True:
+def main():
 
-    command = listen()
+    startup()
 
-    if command == "":
-        continue
+    while True:
 
-    if "exit" in command:
-        speak("Shutting down JARVIS.")
-        break
+        try:
+            # Wait for wake word
+            wait_for_jarvis()
 
-    answer = ask_ai(command)
+            print("JARVIS activated.")
+            speak("Yes Hrithwik?")
 
-    speak(answer)
+            # Listen for user command
+            command = listen()
+
+            if not command:
+                continue
+
+            command = command.strip()
+
+            print("You:", command)
+
+            # Shutdown commands
+            if command.lower() in [
+                "stop jarvis",
+                "shutdown jarvis",
+                "exit jarvis",
+                "goodbye jarvis",
+                "bye jarvis",
+                "go offline"
+            ]:
+
+                print("JARVIS: Going offline.")
+                speak("Going offline.")
+                break
+
+            # Process command
+            answer = ask_ai(command)
+
+            if answer:
+                print("JARVIS:", answer)
+                speak(answer)
+
+        except KeyboardInterrupt:
+
+            print("\nJARVIS stopped.")
+            speak("Goodbye Hrithwik.")
+            break
+
+        except Exception as e:
+
+            print("JARVIS ERROR:", e)
+
+            time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()
