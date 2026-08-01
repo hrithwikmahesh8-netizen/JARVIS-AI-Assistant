@@ -19,3 +19,8 @@ logs/
 
 # Windows
 Thumbs.db
+
+input.wav
+*.wav
+__pycache__/
+.env
