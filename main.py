@@ -1,17 +1,22 @@
 from app.services.voice import listen
 from app.services.speaker import speak
+from app.brain.assistant import ask_ai
 
 
-speak("Hello Hrithwik. JARVIS is online.")
+speak("Hello Hrithwik. JARVIS AI is online.")
 
 
 while True:
 
     command = listen()
 
-    if "hello" in command:
-        speak("Hello. How can I help you?")
+    if command == "":
+        continue
 
-    elif "exit" in command:
-        speak("Goodbye.")
+    if "exit" in command:
+        speak("Shutting down JARVIS.")
         break
+
+    answer = ask_ai(command)
+
+    speak(answer)
