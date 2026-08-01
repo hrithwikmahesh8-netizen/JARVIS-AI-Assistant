@@ -1,14 +1,17 @@
-from PySide6.QtWidgets import QApplication
-from app.ui.main_window import MainWindow
-import sys
+from app.services.voice import listen
+from app.services.speaker import speak
 
-def main():
-    app = QApplication(sys.argv)
 
-    window = MainWindow()
-    window.show()
+speak("Hello Hrithwik. JARVIS is online.")
 
-    sys.exit(app.exec())
 
-if __name__ == "__main__":
-    main()
+while True:
+
+    command = listen()
+
+    if "hello" in command:
+        speak("Hello. How can I help you?")
+
+    elif "exit" in command:
+        speak("Goodbye.")
+        break
