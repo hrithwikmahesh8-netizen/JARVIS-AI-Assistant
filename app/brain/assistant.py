@@ -1,6 +1,8 @@
 import requests
 import json
+
 from app.memory.database import remember, recall, add_chat
+from app.services.system_control import system_command
 
 
 def load_profile():
@@ -23,7 +25,19 @@ def ask_ai(prompt):
 
 
     # --------------------------------
-    # Recall questions FIRST
+    # PC CONTROL COMMANDS
+    # --------------------------------
+
+    system_response = system_command(command)
+
+    if system_response:
+        add_chat(original_prompt, system_response)
+        return system_response
+
+
+
+    # --------------------------------
+    # MEMORY RECALL
     # --------------------------------
 
     if "what is my name" in command:
@@ -54,8 +68,11 @@ def ask_ai(prompt):
 
 
     # --------------------------------
-    # Automatic learning
+    # AUTOMATIC LEARNING
     # --------------------------------
+
+
+    # Learn name
 
     if "my name is" in command:
 
@@ -67,6 +84,8 @@ def ask_ai(prompt):
 
 
 
+    # Learn likes
+
     if "i like" in command:
 
         item = command.replace("i like", "").strip()
@@ -76,6 +95,8 @@ def ask_ai(prompt):
         return f"I will remember that you like {item}."
 
 
+
+    # Learn dislikes
 
     if "i don't like" in command or "i dislike" in command:
 
@@ -89,13 +110,14 @@ def ask_ai(prompt):
 
 
     # --------------------------------
-    # AI response
+    # LOCAL AI RESPONSE
     # --------------------------------
 
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={
             "model": "llama3.2",
+
             "prompt": f"""
 You are JARVIS, Hrithwik's personal AI assistant.
 
@@ -103,22 +125,30 @@ User profile:
 {profile}
 
 Rules:
-- You are not Tony Stark's JARVIS.
-- Never invent personal information.
-- Only use stored information.
-- If you don't know, say you don't know.
+- You are NOT Tony Stark's JARVIS.
+- Do not mention Marvel or Tony Stark.
+- Never invent information about Hrithwik.
+- Only use information provided by Hrithwik.
+- If you don't know something, say you don't know.
+- Be helpful and concise.
 
 User:
 {original_prompt}
 
 JARVIS:
 """,
+
             "stream": False
         }
     )
 
+
     answer = response.json()["response"]
 
+
+    # Save conversation
+
     add_chat(original_prompt, answer)
+
 
     return answer
